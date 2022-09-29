@@ -42,7 +42,8 @@ describe("GET /users/:userid/repos", ()=> {
             .get("/users/devendra1102/repos")
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
-            .expect(200);
+            .expect(200)
+            .then(() => done());
     });
 
 });
