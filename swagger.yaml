@@ -1,0 +1,50 @@
+swagger: "2.0"
+info:
+  description: "This is microservice where you can provide any username of github user and all of his repos will be displayed"
+  version: 1.0.0
+  title: GitHub_Backend YAML
+basePath: /
+schemes:
+  - http
+paths:
+  /users/{userid}/repos:
+    get:
+      summary: Return repos of any user which are not forked
+      description: Return List of repos of given userid which are not forked
+      operationId: userid
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Repo"
+        "404":
+          description: Invalid Userid value
+        "406":
+          description: Invalid header
+definitions:
+  Repo:
+    properties:
+      branches:
+        type: array
+        items:
+          $ref: "#/definitions/Branch"
+      name:
+        type: string
+        example: analytics
+      ownerLogin:
+        type: string
+        example: devendra1102
+  Branch:
+    properties:
+      branchName:
+        type: string
+        example: master
+      lastCommit:
+        type: string
+        example: 41159e025f19f3cd1cccecba20c018e02a1d1c88
+
