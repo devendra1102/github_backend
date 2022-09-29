@@ -23,7 +23,7 @@ describe("tests for checking functionality of getRepos function", () => {
                 userid : "somefakeuserid"
             }
         };
-        const mockedkError : {statusCode : number, message : string} = {  statusCode : 404, message : "Request failed with status code 404"}
+        const expectedError : {statusCode : number, message : string} = {  statusCode : 404, message : "Request failed with status code 404"}
         jest
           .spyOn(axios, "get")
           .mockImplementation(() => Promise.reject({ response : { status : 404}, message : "Request failed with status code 404"}));
@@ -33,7 +33,7 @@ describe("tests for checking functionality of getRepos function", () => {
 
         //Verify
         expect(axios.get).toHaveBeenCalledTimes(1);        
-        expect(mockResponse.json).toBeCalledWith(mockedkError);         
+        expect(mockResponse.json).toBeCalledWith(expectedError);         
 
     });
 
@@ -44,7 +44,7 @@ describe("tests for checking functionality of getRepos function", () => {
                 userid : "someValidId"
             }
         };
-        const mockedResponse = [{
+        const expectedResponse = [{
             "repoName": "any",
             "ownerLogin": "any",
             "branches": [
@@ -90,6 +90,6 @@ describe("tests for checking functionality of getRepos function", () => {
 
         //Verify
         expect(axios.get).toHaveBeenCalled();        
-        expect(mockResponse.json).toBeCalledWith(mockedResponse);  
+        expect(mockResponse.json).toBeCalledWith(expectedResponse);  
     });
 });
