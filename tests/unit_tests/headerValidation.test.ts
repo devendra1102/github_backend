@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import { IError } from '../interfaces/error';
-import { validateHeader } from "../middlewares/headerValidation";
+import { IError } from '../../interfaces/error';
+import { validateHeader } from "../../middlewares/headerValidation";
 
 describe("test for header validation",() => {
 
@@ -46,6 +46,7 @@ describe("test for header validation",() => {
             }
         }
         validateHeader(mockRequest as Request, mockResponse as Response, nextFunction);
+        expect(mockResponse.json).toBeCalledTimes(0);
         expect(nextFunction).toBeCalledTimes(1);
     });
 });
