@@ -26,10 +26,12 @@ const getRepos : (req: Request, res: Response, next: NextFunction) => void = asy
         const response : IRepo[] = await Promise.all(finalResponsePromise);
 
         /* Returning the final response */
-        return res.status(status).json(response);
+        res.statusCode = status;
+        return res.json(response);
     } catch (err : any) {
         const error : IError = {statusCode : err.response['status'], message : err.message};
-        return res.status(err.response['status']).json(error);
+        res.statusCode = err.response['status'];
+        return res.json(error);
     } 
 }
 

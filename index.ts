@@ -28,9 +28,10 @@ app.use(validateHeader);
 /* Routes */
 app.use('/', router);
 
-/** Error Handling */
+/** Handling 404 headers */
 app.use((_req: Request, res: Response) => {
-  return res.status(404).json({
+  res.statusCode = 404;
+  return res.json({
       message: "Invalid url. Please use the correct url"
   });
 });
