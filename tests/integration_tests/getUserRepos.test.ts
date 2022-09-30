@@ -1,9 +1,10 @@
-import { app } from "../../index";
+import  App  from "../../app";
 import request from "supertest";
 
 describe("GET /users/:userid/repos", ()=> {
+    const server = new App().httpServer;
     it("should return 406 if accept : application/xml header value is provided", (done) => {
-        request(app)
+        request(server)
             .get("/users/devendra1102/repos")
             .set('Accept', 'application/xml')
             .expect(406)
@@ -14,7 +15,7 @@ describe("GET /users/:userid/repos", ()=> {
     });
 
     it("should return 404 if invalid userid is passed", (done) => {
-        request(app)
+        request(server)
             .get("/users/someinvalidrandomuser/repos")
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
@@ -27,7 +28,7 @@ describe("GET /users/:userid/repos", ()=> {
     });
 
     it("should return valid repos of a user if valid userid is passed", (done) => {
-        request(app)
+        request(server)
             .get("/users/devendra1102/repos")
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)

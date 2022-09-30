@@ -3,7 +3,7 @@ info:
   description: "This is microservice where you can provide any username of github user and all of his repos will be displayed"
   version: 1.0.0
   title: GitHub_Backend YAML
-basePath: /
+basePath:
 schemes:
   - http
 paths:
@@ -15,6 +15,11 @@ paths:
       produces:
         - application/json
       parameters:
+        - name: userid
+          in: path
+          description: username 
+          required: true
+          type: string
       responses:
         "200":
           description: successful operation

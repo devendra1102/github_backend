@@ -8,12 +8,16 @@ type listUserReposResponse =
   Endpoints["GET /users/{username}/repos"]["response"];
 type listBranchesResponse = Endpoints["GET /repos/{owner}/{repo}/branches"]["response"];
 
-const octokit = new Octokit({ auth: process.env.TOKEN });
-
 export default class Repo {
+    private octokit: Octokit;
+
+    constructor() {
+        this.octokit = new Octokit({ auth: process.env.TOKEN });
+    }
+    
     getRepos = async (userid : string)  : Promise<IRepo[]> => {
         try {
-            const allRepos : listUserReposResponse = await octokit.request('GET /users/{username}/repos', { 
+            const allRepos : listUserReposResponse = await this.octokit.request('GET /users/{username}/repos', { 
                 username: userid 
             });
             const notForkedRepos : listUserReposResponse["data"] = allRepos["data"].filter((repo) => {
@@ -37,7 +41,7 @@ export default class Repo {
 
     getBranches = async (userid : string, repoName : string) : Promise<IBranch[]> => {
         try {
-            const allBranchesOfRepo : listBranchesResponse = await octokit.request('GET /repos/{owner}/{repo}/branches', {
+            const allBranchesOfRepo : listBranchesResponse = await this.octokit.request('GET /repos/{owner}/{repo}/branches', {
                 owner: userid, repo : repoName
             });
             const relevantBranchDataOfRepo : IBranch[] = allBranchesOfRepo["data"].map((branch) => {

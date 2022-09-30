@@ -1,5 +1,4 @@
-import http, { Server } from "http";
-import { app } from "./index";
+import app from "./app";
 import logging from './utils/logging';
 import dotenv from 'dotenv';
 
@@ -10,5 +9,11 @@ const hostname : string = process.env.SERVER_HOSTNAME || 'localhost';
 
 const NAMESPACE: string = 'Server';
 
-const httpServer : Server = http.createServer(app);
-httpServer.listen(port, () => logging.info(NAMESPACE, `Server is running ${hostname}:${port}`));
+const server = new app().Start(port)
+  .then(port => logging.info(NAMESPACE, `Server is running ${hostname}:${port}`))
+  .catch(error => {
+    console.log(error)
+    process.exit(1);
+  });
+
+export default server;
