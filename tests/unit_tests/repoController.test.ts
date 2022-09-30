@@ -1,95 +1,31 @@
+import { RequestError } from '@octokit/request-error';
+import RepoController from '../../controllers/repos';
+import { IRepo } from '../../interfaces/repo';
+import { IBranch } from '../../interfaces/branch';
+
+const repoController = new RepoController();
+
 describe("tests for checking functionality of getRepos function", () => {
+    it('should throw error if invalid userid is provided', async () => {
+        await(expect(repoController.getRepos('somefakeUserid')).rejects.toThrow(RequestError));
+    });
 
-    // let mockRequest: Partial<Request>;
-    // let mockResponse: Partial<Response>;
-    // let nextFunction: NextFunction = jest.fn();
-    
-
-    // beforeEach(() => {
-    //     mockRequest = {};
-    //     mockResponse = {
-    //         json: jest.fn()
-    //     };
-    // });
-
-    // it("should return error if invalid userid is provided",async () => {
-    //     //Arrange
-    //     mockRequest= {
-    //         params: {
-    //             userid : "somefakeuserid"
-    //         }
-    //     };
-    //     const expectedError : {statusCode : number, message : string} = {  statusCode : 404, message : "Request failed with status code 404"}
-    //     jest
-    //       .spyOn(axios, "get")
-    //       .mockImplementation(() => Promise.reject({ response : { status : 404}, message : "Request failed with status code 404"}));
-        
-    //     //Action
-    //     await repoController.getRepos(mockRequest as Request, mockResponse as Response, nextFunction);  
-
-    //     //Verify
-    //     expect(axios.get).toHaveBeenCalledTimes(1);        
-    //     expect(mockResponse.json).toBeCalledWith(expectedError);         
-
-    // });
-
-    // it("should return valid response if valid userid is provided", async () => {
-    //     //Arrange
-    //     mockRequest= {
-    //         params: {
-    //             userid : "someValidId"
-    //         }
-    //     };
-    //     const expectedResponse = [{
-    //         "repoName": "any",
-    //         "ownerLogin": "any",
-    //         "branches": [
-    //             {
-    //                 "branchName": "any",
-    //                 "lastCommit": "any"
-    //             },
-    //             {
-    //                 "branchName": "any2",
-    //                 "lastCommit": "any2"
-    //             }
-    //         ]
-    //     }];
-    //     jest
-    //       .spyOn(axios, "get")
-    //       .mockImplementationOnce(() => Promise.resolve({ data : [{ 
-    //             fork : false,
-    //             name : "any",
-    //             owner : 
-    //             { 
-    //                 login : "any"
-    //             }
-    //         }]
-    //         , status : 200}))
-    //         .mockImplementation(() => Promise.resolve({
-    //             data : [{
-    //                 name : "any",
-    //                 commit : {
-    //                     sha : "any"
-    //                 }
-                    
-    //             },
-    //             {
-    //                 name : "any2",
-    //                 commit : {
-    //                     sha : "any2"
-    //                 }
-    //             }]
-    //         }));
-
-    //     //Action
-    //     await repoController.getRepos(mockRequest as Request, mockResponse as Response, nextFunction);  
-
-    //     //Verify
-    //     expect(axios.get).toHaveBeenCalled();        
-    //     expect(mockResponse.json).toBeCalledWith(expectedResponse);  
-    // });
+    it('should return all repos of user if valid userid is provided', async () => {
+        const repos : IRepo[] = await repoController.getRepos('devendra1102');
+        repos.forEach(repo => {
+            expect(repo).toHaveProperty('repoName');
+            expect(repo).toHaveProperty('ownerLogin');
+            expect(repo).toHaveProperty('branches');
+        });
+    });
 });
 
 describe("checking the functionality of getBranches function", () => {
-
+    it('should return all branches of a repo', async () => {
+        const branches : IBranch[] = await repoController.getBranches('devendra1102', 'github_backend');
+        branches.forEach(branch => {
+            expect(branch).toHaveProperty('branchName');
+            expect(branch).toHaveProperty('lastCommit');
+        });
+    });
 });
