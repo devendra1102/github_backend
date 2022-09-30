@@ -26,8 +26,17 @@ export default class App {
     });
 
     this.httpServer.use(validateHeader);
+
     new Router(this.httpServer);
+
     this.httpServer.use('/docs',swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+    
+    this.httpServer.use((_req: Request, res: Response) => {
+      res.statusCode = 404;
+      return res.json({
+          message: "Invalid url. Please use the correct url"
+      });
+    });
   }
 
   public Start = (port: string) => {
