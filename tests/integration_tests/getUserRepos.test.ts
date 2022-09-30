@@ -2,24 +2,13 @@ import { app } from "../../index";
 import request from "supertest";
 
 describe("GET /users/:userid/repos", ()=> {
-    it("should return 406 if accept header is not passed", (done) => {
-         request(app)
-            .get("/users/devendra1102/repos")
-            .expect(406)
-            .then(response => {
-                expect(response.body.message).toBe("accept : 'application/json' is missing in header");
-                done();
-            });
-
-    });
-
-    it("should return 406 if accept header value is not correct", (done) => {
+    it("should return 406 if accept : application/xml header value is provided", (done) => {
         request(app)
             .get("/users/devendra1102/repos")
             .set('Accept', 'application/xml')
             .expect(406)
             .then(response => {
-                expect(response.body.message).toBe("Only accept : 'application/json' is allowed in header");
+                expect(response.body.message).toBe("Accept : 'application/xml' is not allowed in header");
                 done();
             });;
     });
@@ -31,7 +20,7 @@ describe("GET /users/:userid/repos", ()=> {
             .expect('Content-Type', /json/)
             .expect(404)
             .then(response => {
-                expect(response.body.message).toBe("Request failed with status code 404");
+                expect(response.body.message).toBe("Not Found");
                 done();
             });
 

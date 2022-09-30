@@ -1,38 +1,53 @@
-import axios from 'axios';
-import { Request, Response, NextFunction } from 'express';
-import { IError } from '../interfaces/error';
+import { IBranch } from '../interfaces/branch';
 import { IRepo } from '../interfaces/repo';
 
-const NAMESPACE : string = "Repos Controller";
+import { Endpoints } from "@octokit/types";
+import { Octokit } from 'octokit';
 
+type listUserReposResponse =
+  Endpoints["GET /users/{username}/repos"]["response"];
+type listBranchesResponse = Endpoints["GET /repos/{owner}/{repo}/branches"]["response"];
 
-const getRepos : (req: Request, res: Response, next: NextFunction) => void = async (req: Request, res: Response, next: NextFunction) => {
-    const userid : string = req.params['userid'];
-    try {
-        /* Calling github api for fetching data */
-        const { data, status } = await axios.get(`https://api.github.com/users/${userid}/repos`);
+const octokit = new Octokit({ auth: process.env.TOKEN });
 
-        /* Filtering out forked repos */
-        const notForked : any = data.filter((repo: { [x: string]: any; }) => repo['fork']===false);
+export default class Repo {
+    getRepos = async (userid : string)  : Promise<IRepo[]> => {
+        try {
+            const allRepos : listUserReposResponse = await octokit.request('GET /users/{username}/repos', { 
+                username: userid 
+            });
+            const notForkedRepos : listUserReposResponse["data"] = allRepos["data"].filter((repo) => {
+                return repo['fork']===false
+            });
+            
+            const reposWithBranchDescription : Promise<IRepo>[]= notForkedRepos.map(async (repo) => {
+                const allBrachesForRepo = await this.getBranches(userid, repo["name"]);
+                return {
+                    repoName : repo["name"],
+                    ownerLogin : repo["owner"]?.["login"],
+                    branches : allBrachesForRepo
+                };
+            });
+            return Promise.all(reposWithBranchDescription);
+        }
+        catch(ex : any) {
+            throw ex;
+        }
+    }
 
-        /* For ech repo fetching all the branches */
-        const finalResponsePromise : Promise<IRepo>[] = notForked.map(async (repo: { [x: string]: any}) => {
-            const { data } = await axios.get(`https://api.github.com/repos/${userid}/${repo['name']}/branches`);
-            const branches : {branchName : string, lastCommit : string} [] = data.map((branch : { [x: string]: any}) => {return { branchName : branch['name'], lastCommit : branch['commit']?.['sha']}});
-            return ({repoName : repo['name'], ownerLogin : repo['owner']?.['login'], branches : branches});    
-        })
-
-        /* Waiting to get all branches for the repo */
-        const response : IRepo[] = await Promise.all(finalResponsePromise);
-
-        /* Returning the final response */
-        res.statusCode = status;
-        return res.json(response);
-    } catch (err : any) {
-        const error : IError = {statusCode : err.response['status'], message : err.message};
-        res.statusCode = err.response['status'];
-        return res.json(error);
-    } 
+    getBranches = async (userid : string, repoName : string) : Promise<IBranch[]> => {
+        try {
+            const allBranchesOfRepo : listBranchesResponse = await octokit.request('GET /repos/{owner}/{repo}/branches', {
+                owner: userid, repo : repoName
+            });
+            const relevantBranchDataOfRepo : IBranch[] = allBranchesOfRepo["data"].map((branch) => {
+                return {branchName : branch["name"], lastCommit : branch["commit"]?.["sha"]};
+            });
+            return relevantBranchDataOfRepo;
+        }
+        catch(ex : any) {
+            throw ex;
+        }
+    }
 }
 
-export default { getRepos };
